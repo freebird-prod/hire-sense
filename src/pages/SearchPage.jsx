@@ -9,8 +9,8 @@ const SearchPage = () => {
   const [error, setError] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  const API_KEY = '83c8a45cf1msh698b6f4c477459bp1cbbf9jsnca7d89256bcd';
-  const API_HOST = 'jsearch.p.rapidapi.com';
+  const API_KEY = import.meta.env.VITE_RAPID_API_KEY;
+  const API_HOST = import.meta.env.VITE_RAPID_API_HOST;
 
   const handleSearch = async (e) => {
     e.preventDefault();
