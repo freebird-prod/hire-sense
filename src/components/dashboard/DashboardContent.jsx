@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, FileText, BarChart3, Sparkles, Bot, X } from 'lucide-react';
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 const DashboardContent = () => {
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ const DashboardContent = () => {
     ]);
     const [input, setInput] = useState('');
     const messagesEndRef = useRef(null);
-    const [isGroqLoading, setIsGroqLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -23,24 +23,25 @@ const DashboardContent = () => {
 
         setMessages(updatedMessages);
         setInput('');
-        setIsGroqLoading(true);
+        setIsLoading(true);
 
         try {
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                     'Content-Type': 'application/json',
+                    'HTTP-Referer': 'http://localhost:5173',
+                    'X-Title': 'AI Career Chatbot',
                 },
                 body: JSON.stringify({
-                    model: 'llama3-70b-8192',
+                    model: 'meta-llama/llama-4-maverick:free',
                     messages: updatedMessages.map(msg => ({
                         role: msg.from === 'assistant' ? 'assistant' : 'user',
                         content: msg.text
                     })),
                     temperature: 0.7,
                     max_tokens: 256,
-                    top_p: 1,
                 }),
             });
 
@@ -57,7 +58,7 @@ const DashboardContent = () => {
         } catch {
             setMessages(prev => [...prev, { from: 'assistant', text: '❌ Something went wrong. Please try again later.' }]);
         } finally {
-            setIsGroqLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -86,15 +87,15 @@ const DashboardContent = () => {
             transition={{ duration: 0.6 }}
         >
             <motion.h1 className="text-4xl font-bold text-gray-800">
-                🚀 Welcome to Your AI Screening Dashboard
+                🚀 Welcome to Your Hire Sense AI Screening Dashboard
             </motion.h1>
 
-            <div className="flex gap-6 justify-between flex-wrap">
+            <div className="flex gap-5 justify-between">
                 <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/dashboard/upload')}
-                    className="bg-green-600 text-white px-6 py-6 w-[40%] font-semibold rounded-xl text-xl shadow hover:bg-green-700 transition"
+                    className="bg-green-700 text-white px-4 py-4 w-[50%] font-semibold rounded-xl text-xl shadow hover:bg-green-600 transition"
                 >
                     🧑‍💻 Recruiter
                 </motion.button>
@@ -103,24 +104,18 @@ const DashboardContent = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/dashboard/template')}
-                    className="bg-blue-600 text-white px-6 py-3 w-[40%] font-semibold rounded-xl text-xl shadow hover:bg-blue-700 transition"
+                    className="bg-blue-700 text-white px-4 py-4 w-[50%] font-semibold rounded-xl text-xl shadow hover:bg-blue-600 transition"
                 >
-                    🧑‍💼 Job Apply
+                    🧑‍💼 Job Applier
                 </motion.button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {statCard(<FileText className="w-6 h-6 text-white" />, "Resumes Uploaded", 172, "bg-indigo-600")}
-                {statCard(<Users className="w-6 h-6 text-white" />, "Candidates Screened", 108, "bg-purple-600")}
-                {statCard(<BarChart3 className="w-6 h-6 text-white" />, "Avg Match Score", "89%", "bg-pink-500")}
             </div>
 
             <div className="bg-gradient-to-r from-gray-100 to-white rounded-xl p-6 shadow-md space-y-4">
                 <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" /> Smart Career Assistant
+                    <Sparkles className="w-5 h-5" /> Hire Sense Career Assistant
                 </h2>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                    <li><strong>For Applicants:</strong> Use the <span className="font-medium text-blue-600">Job Apply</span> tool to access AI-enhanced Canva templates.</li>
+                    <li><strong>For Applicants:</strong> Use the <span className="font-medium text-primary">Job Apply</span> tool to access AI-enhanced Canva templates.</li>
                     <li><strong>For Recruiters:</strong> Upload resumes to get instant AI screening reports.</li>
                     <li><strong>Smart Tip:</strong> Higher match scores come from keyword-aligned resumes.</li>
                     <li><strong>Pro Insight:</strong> Cover letters can improve selection chances by 37%.</li>
@@ -131,7 +126,7 @@ const DashboardContent = () => {
             <motion.button
                 onClick={() => setShowChat(!showChat)}
                 whileHover={{ scale: 1.1 }}
-                className="fixed bottom-6 right-6 bg-gray-900 text-white p-4 rounded-full shadow-xl z-50"
+                className="fixed bottom-6 right-6 bg-primary text-white p-4 rounded-full shadow-xl z-50"
             >
                 <Bot className="w-6 h-6" />
             </motion.button>
@@ -145,7 +140,7 @@ const DashboardContent = () => {
                         exit={{ opacity: 0, y: 50 }}
                         className="fixed bottom-24 right-6 bg-slate-300 rounded-2xl shadow-2xl w-[420px] h-[500px] flex flex-col z-50 overflow-hidden"
                     >
-                        <div className="flex justify-between items-center p-4 bg-gray-900 text-white">
+                        <div className="flex justify-between items-center p-4 bg-primary text-white">
                             <p className="font-semibold">Robo Assistant</p>
                             <button onClick={() => setShowChat(false)}>
                                 <X className="w-5 h-5" />
@@ -158,14 +153,14 @@ const DashboardContent = () => {
                                     key={i}
                                     className={`p-3 rounded-lg max-w-[80%] ${msg.from === 'assistant'
                                         ? 'bg-gray-100 text-gray-900 self-start'
-                                        : 'bg-gray-900 text-white self-end ml-auto'
+                                        : 'bg-primary text-white self-end ml-auto'
                                         }`}
                                 >
                                     {msg.text}
                                 </div>
                             ))}
-                            {isGroqLoading && (
-                                <div className="p-3 rounded-lg max-w-[80%] bg-gray-100 text-gray-900 self-start">
+                            {isLoading && (
+                                <div className="p-3 rounded-lg max-w-[80%] bg-gray-100 text-primary self-start">
                                     Thinking... <span className="animate-pulse">⏳</span>
                                 </div>
                             )}
@@ -190,10 +185,10 @@ const DashboardContent = () => {
                                 />
                                 <button
                                     type="submit"
-                                    className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
-                                    disabled={isGroqLoading}
+                                    className="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
+                                    disabled={isLoading}
                                 >
-                                    {isGroqLoading ? 'Sending...' : 'Send'}
+                                    {isLoading ? 'Sending...' : 'Send'}
                                 </button>
                             </form>
                         </div>

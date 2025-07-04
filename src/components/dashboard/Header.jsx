@@ -9,7 +9,7 @@ function Header() {
     const location = useLocation();
 
     const pageTitles = {
-        "/dashboard/content": "📊 AI Resume Screening Dashboard",
+        "/dashboard/content": "📊 Hire Sense AI Screening Dashboard",
         "/dashboard/upload": "📄 Upload Your Resume and Job Description",
         "/dashboard/topnotch": "🌟 Top Matching Resumes & Insights",
         "/dashboard/search": "🔍 Search & Filter Past Screenings",
