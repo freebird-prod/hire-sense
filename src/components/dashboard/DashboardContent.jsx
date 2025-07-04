@@ -34,7 +34,7 @@ const DashboardContent = () => {
                     'X-Title': 'AI Career Chatbot',
                 },
                 body: JSON.stringify({
-                    model: 'meta-llama/llama-4-maverick:free',
+                    model: 'mistralai/mistral-small-3.2-24b-instruct:free',
                     messages: updatedMessages.map(msg => ({
                         role: msg.from === 'assistant' ? 'assistant' : 'user',
                         content: msg.text
