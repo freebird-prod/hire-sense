@@ -31,6 +31,7 @@ const DashboardContent = () => {
                 headers: {
                     'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                     'Content-Type': 'application/json',
+                    'HTTP-Referer': 'https://hiresense-ai.vercel.app', 
                     'X-Title': 'AI Career Chatbot',
                 },
                 body: JSON.stringify({
