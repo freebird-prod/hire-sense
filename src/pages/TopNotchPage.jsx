@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, SendHorizonal, MailCheck, User, RotateCcw } from 'lucide-react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { sendCandidateEmail } from '../utils/sendMail';
+import React, { useEffect, useState } from "react";
+import { Send, SendHorizonal, MailCheck, User, RotateCcw } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { sendCandidateEmail } from "../utils/sendMail";
+import { motion } from "framer-motion";
 
 const TopNotchPage = () => {
   const [topCandidates, setTopCandidates] = useState([]);
@@ -11,8 +11,8 @@ const TopNotchPage = () => {
   const [mailStatus, setMailStatus] = useState({});
 
   useEffect(() => {
-    const candidateRaw = localStorage.getItem('candidateData');
-    const geminiRaw = localStorage.getItem('gemini_analysis_result');
+    const candidateRaw = localStorage.getItem("candidateData");
+    const geminiRaw = localStorage.getItem("gemini_analysis_result");
 
     let candidates = [];
     let gemini = {};
@@ -21,20 +21,20 @@ const TopNotchPage = () => {
       if (candidateRaw) candidates = JSON.parse(candidateRaw);
       if (geminiRaw) gemini = JSON.parse(geminiRaw);
     } catch (err) {
-      console.error('Error parsing localStorage:', err);
+      console.error("Error parsing localStorage:", err);
     }
 
     const enriched = candidates.map((c) => ({
       ...c,
       match: gemini.accuracy_score || 0,
-      role: (gemini.recommended_jobs && gemini.recommended_jobs[0]) || 'N/A',
-      explanation: gemini.explanation || '',
+      role: (gemini.recommended_jobs && gemini.recommended_jobs[0]) || "N/A",
+      explanation: gemini.explanation || "",
     }));
 
-    const filtered = enriched.filter((c) => c.match > 75);
+    const filtered = enriched.filter((c) => c.match > 60);
     setTopCandidates(filtered);
 
-    const storedMailStatus = localStorage.getItem('mailStatus');
+    const storedMailStatus = localStorage.getItem("mailStatus");
     if (storedMailStatus) {
       setMailStatus(JSON.parse(storedMailStatus));
     }
@@ -45,12 +45,16 @@ const TopNotchPage = () => {
   const updateMailStatus = (name, status) => {
     const updated = { ...mailStatus, [name]: status };
     setMailStatus(updated);
-    localStorage.setItem('mailStatus', JSON.stringify(updated));
+    localStorage.setItem("mailStatus", JSON.stringify(updated));
   };
 
   const sendMail = async (candidate) => {
-    const storedCandidates = JSON.parse(localStorage.getItem('candidateData') || '[]');
-    const storedCandidate = storedCandidates.find((c) => c.name === candidate.name);
+    const storedCandidates = JSON.parse(
+      localStorage.getItem("candidateData") || "[]"
+    );
+    const storedCandidate = storedCandidates.find(
+      (c) => c.name === candidate.name
+    );
     const email = storedCandidate?.email || candidate.email;
 
     if (!email) {
@@ -66,32 +70,30 @@ const TopNotchPage = () => {
         skills: candidate.skills,
       });
 
-
-
-      updateMailStatus(candidate.name, 'sent');
+      updateMailStatus(candidate.name, "sent");
       toast.success(`✅ Email sent to ${candidate.name}`);
     } catch (err) {
-      console.error('Send error:', err);
+      console.error("Send error:", err);
       toast.error(`❌ Failed to send mail to ${candidate.name}`);
     }
   };
 
   const sendAllMails = async () => {
-    if (!window.confirm('Send emails to all top candidates?')) return;
+    if (!window.confirm("Send emails to all top candidates?")) return;
 
     for (const candidate of topCandidates) {
-      if (mailStatus[candidate.name] !== 'sent') {
+      if (mailStatus[candidate.name] !== "sent") {
         await sendMail(candidate);
       }
     }
 
-    toast.success('🎉 All emails processed!');
+    toast.success("🎉 All emails processed!");
   };
 
   const resetMailStatus = () => {
-    localStorage.removeItem('mailStatus');
+    localStorage.removeItem("mailStatus");
     setMailStatus({});
-    toast.info('✉️ Mail status reset');
+    toast.info("✉️ Mail status reset");
   };
 
   return (
@@ -103,7 +105,7 @@ const TopNotchPage = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <h1 className="text-4xl font-bold text-center mb-8">
-        🏆 Top Notch Candidates (Match {'>'} 75%)
+        🏆 Top Notch Candidates (Match {">"} 60%)
       </h1>
 
       {loading ? (
@@ -111,7 +113,9 @@ const TopNotchPage = () => {
           Loading top candidates...
         </p>
       ) : topCandidates.length === 0 ? (
-        <p className="text-center text-red-500 text-lg">No top candidates found.</p>
+        <p className="text-center text-red-500 text-lg">
+          No top candidates found.
+        </p>
       ) : (
         <>
           <div className="text-center mb-6 flex justify-between items-center gap-2">
@@ -151,16 +155,20 @@ const TopNotchPage = () => {
                         style={{ width: `${candidate.match}%` }}
                       ></div>
                     </div>
-                    <p className="text-xs text-gray-600">{candidate.match}% Match</p>
+                    <p className="text-xs text-gray-600">
+                      {candidate.match}% Match
+                    </p>
                     <p className="text-xs text-gray-500">{candidate.email}</p>
                     <p className="text-xs text-gray-500 mt-1 italic">
-                      Skills: {candidate.skills.join(', ')}
+                      Skills: {candidate.skills.join(", ")}
                     </p>
-                    <p className="text-xs text-purple-700 mt-2">{candidate.explanation}</p>
+                    <p className="text-xs text-purple-700 mt-2">
+                      {candidate.explanation}
+                    </p>
                   </div>
                 </div>
 
-                {mailStatus[candidate.name] === 'sent' ? (
+                {mailStatus[candidate.name] === "sent" ? (
                   <span className="flex items-center gap-1 text-green-600 font-medium text-sm">
                     <MailCheck size={18} /> Sent
                   </span>
@@ -168,7 +176,7 @@ const TopNotchPage = () => {
                   <button
                     onClick={() => sendMail(candidate)}
                     className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-full transition shadow-md"
-                    style={{ minWidth: '120px' }}
+                    style={{ minWidth: "120px" }}
                   >
                     <SendHorizonal size={16} />
                     <span className="text-sm font-medium">Send Mail</span>

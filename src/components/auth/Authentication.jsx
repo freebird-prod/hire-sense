@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import loginImg from "/login.jpeg";
@@ -13,7 +13,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../../../configs/FirebaseConfig";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, ArrowLeft } from "lucide-react";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -21,6 +21,24 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const savedRole = localStorage.getItem("userRole");
+    if (savedRole) {
+      setRole(savedRole);
+    }
+  }, []);
+
+  const handleRoleSelect = (selectedRole) => {
+    setRole(selectedRole);
+    localStorage.setItem("userRole", selectedRole);
+  };
+
+  const handleBack = () => {
+    setRole(null);
+    localStorage.removeItem("userRole");
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -56,7 +74,9 @@ function AuthPage() {
         });
       }
 
-      setTimeout(() => navigate("/dashboard"), 1500);
+      const redirectPath =
+        role === "recruiter" ? "/dashboard" : "/applier-dashboard";
+      setTimeout(() => navigate(redirectPath), 1500);
     } catch (err) {
       console.error("Auth Error:", err);
 
@@ -77,10 +97,7 @@ function AuthPage() {
           break;
       }
 
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 1500,
-      });
+      toast.error(errorMessage, { position: "top-right", autoClose: 1500 });
     }
   };
 
@@ -92,7 +109,9 @@ function AuthPage() {
           position: "top-right",
           autoClose: 1500,
         });
-        setTimeout(() => navigate("/dashboard"), 1000);
+        const redirectPath =
+          role === "recruiter" ? "/dashboard" : "/applier-dashboard";
+        setTimeout(() => navigate(redirectPath), 1000);
       })
       .catch((err) => {
         console.error("Google Sign-in Error:", err);
@@ -103,12 +122,132 @@ function AuthPage() {
       });
   };
 
+  const renderRoleSelection = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center w-full"
+    >
+      <h2 className="text-3xl font-bold text-gray-800 mb-4">
+        Choose Your Role
+      </h2>
+      <p className="text-gray-600 mb-8">
+        Are you here to hire or to get hired?
+      </p>
+      <div className="flex flex-col space-y-4">
+        <Button
+          onClick={() => handleRoleSelect("recruiter")}
+          size="lg"
+          className="w-full bg-primary hover:bg-primary/80"
+        >
+          For Recruiters
+        </Button>
+        <Button
+          onClick={() => handleRoleSelect("applier")}
+          size="lg"
+          variant="outline"
+          className="w-full border-black hover:border-primary"
+        >
+          For Job Appliers
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  const renderAuthForm = () => (
+    <motion.div
+      initial={{ x: 50, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="w-full"
+    >
+      <button
+        onClick={handleBack}
+        className="flex items-center gap-2 text-red-700 font-medium transition-colors hover:text-red-500 mb-4"
+      >
+        <ArrowLeft size={20} /> Back
+      </button>
+      <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+        {isSignUp ? "Create an Account" : "Sign In"} (
+        {role === "recruiter" ? "Recruiter" : "Job Applier"})
+      </h2>
+      <p className="text-gray-600 text-center mb-6">
+        {isSignUp
+          ? "Sign up with your email or use Google"
+          : "Login using your email or Google account"}
+      </p>
+
+      <form onSubmit={handleAuth} className="space-y-4">
+        <div>
+          <label className="block text-gray-700 font-semibold">Email</label>
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 font-semibold">Password</label>
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-2 top-2 text-gray-500"
+            >
+              {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full bg-primary text-white">
+          {isSignUp ? "Sign Up" : "Continue"}
+        </Button>
+      </form>
+
+      <div className="flex items-center justify-center my-4">
+        <span className="text-gray-400">or</span>
+      </div>
+
+      <Button
+        onClick={handleGoogleSignIn}
+        variant="outline"
+        className="w-full font-medium text-md"
+      >
+        <img
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          alt="google"
+          className="w-5 h-5 mr-2"
+        />
+        {isSignUp ? "Sign up with Google" : "Sign in with Google"}
+      </Button>
+
+      <p className="mt-6 text-center text-sm text-gray-600">
+        {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+        <button
+          onClick={() => setIsSignUp(!isSignUp)}
+          className="text-indigo-600 font-medium hover:underline ml-1"
+        >
+          {isSignUp ? "Sign In" : "Sign Up"}
+        </button>
+      </p>
+    </motion.div>
+  );
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        {/* Left Image */}
         <motion.div
-          initial={{ x: 50, opacity: 0 }}
+          initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4 }}
           className="hidden md:flex items-center justify-center bg-indigo-100"
@@ -120,87 +259,8 @@ function AuthPage() {
           />
         </motion.div>
 
-        {/* Right Form */}
         <div className="w-full p-8 flex flex-col justify-center items-center">
-          <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="w-full"
-          >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
-              {isSignUp ? "Create an Account" : "Sign In"}
-            </h2>
-            <p className="text-gray-600 text-center mb-6">
-              {isSignUp
-                ? "Sign up with your email or use Google"
-                : "Login using your email or Google account"}
-            </p>
-
-            <form onSubmit={handleAuth} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-semibold">Email</label>
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-semibold">Password</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-2 top-2 text-gray-500"
-                  >
-                    {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full bg-primary text-white">
-                {isSignUp ? "Sign Up" : "Continue"}
-              </Button>
-            </form>
-
-            <div className="flex items-center justify-center my-4">
-              <span className="text-gray-400">or</span>
-            </div>
-
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="w-full font-medium text-md"
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="google"
-                className="w-5 h-5 mr-2"
-              />
-              {isSignUp ? "Sign up with Google" : "Sign in with Google"}
-            </Button>
-
-            <p className="mt-6 text-center text-sm text-gray-600">
-              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-indigo-600 font-medium hover:underline ml-1"
-              >
-                {isSignUp ? "Sign In" : "Sign Up"}
-              </button>
-            </p>
-          </motion.div>
+          {role ? renderAuthForm() : renderRoleSelection()}
           <ToastContainer />
         </div>
       </div>
