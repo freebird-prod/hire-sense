@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import loginImg from "/login.jpeg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
@@ -16,6 +14,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../../configs/FirebaseConfig";
 import { Eye, EyeClosed, ArrowLeft, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -148,7 +147,7 @@ function AuthPage() {
       
       if (isSignUp) {
         userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        toast.success("Account created successfully! Welcome aboard!", {
+        toast.success("Account created successfully!", {
           position: "top-right",
           autoClose: 2000,
         });

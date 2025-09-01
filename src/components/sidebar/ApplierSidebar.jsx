@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { auth } from '../../../configs/FirebaseConfig';
 import { signOut } from 'firebase/auth';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 const navigation = [
     { name: 'Home', to: '/applier-dashboard/content', icon: Home },

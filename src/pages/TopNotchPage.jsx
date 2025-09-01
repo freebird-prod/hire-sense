@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Send, SendHorizonal, MailCheck, User, RotateCcw } from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { sendCandidateEmail } from "../utils/sendMail";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const TopNotchPage = () => {
   const [topCandidates, setTopCandidates] = useState([]);

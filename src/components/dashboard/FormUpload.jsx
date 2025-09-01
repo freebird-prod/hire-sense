@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, UploadCloud, BrainCircuit, Sparkles } from 'lucide-react';
-import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
-import 'react-toastify/dist/ReactToastify.css';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Input } from '../ui/input';
+import toast from 'react-hot-toast';
 
 const FormUpload = () => {
   const [file, setFile] = useState(null);
