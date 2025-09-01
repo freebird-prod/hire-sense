@@ -101,7 +101,6 @@ const TopNotchPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <ToastContainer position="top-right" autoClose={3000} />
 
       <h1 className="text-4xl font-bold text-center mb-8">
         🏆 Top Notch Candidates (Match {">"} 60%)

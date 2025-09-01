@@ -507,7 +507,6 @@ function AuthPage() {
 
         <div className="w-full p-8 flex flex-col justify-center items-center">
           {role ? renderAuthForm() : renderRoleSelection()}
-          <ToastContainer />
         </div>
       </div>
     </div>
